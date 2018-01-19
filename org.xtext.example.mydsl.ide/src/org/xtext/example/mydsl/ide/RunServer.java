@@ -19,6 +19,7 @@ import org.eclipse.xtext.ide.server.ServerModule;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.util.Modules;
 
 /**
  * @author dietrich - Initial contribution and API
@@ -26,7 +27,7 @@ import com.google.inject.Injector;
 public class RunServer {
 
 	public static void main(String[] args) throws InterruptedException, IOException {
-		Injector injector = Guice.createInjector(new ServerModule());
+		Injector injector =  Guice.createInjector(Modules.override(new ServerModule()).with(new CustomServerModule()));
 		LanguageServerImpl languageServer = injector.getInstance(LanguageServerImpl.class);
 		Function<MessageConsumer, MessageConsumer> wrapper = consumer -> {
 			MessageConsumer result = consumer;

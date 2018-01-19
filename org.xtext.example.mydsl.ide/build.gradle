@@ -4,6 +4,7 @@ dependencies {
 	compile project(':org.xtext.example.mydsl')
 	compile "org.eclipse.xtext:org.eclipse.xtext.ide:${xtextVersion}"
 	compile "org.eclipse.xtext:org.eclipse.xtext.xbase.ide:${xtextVersion}"
+	compile "org.eclipse.xtext:org.eclipse.xtext.java:${xtextVersion}"
 }
 
 // Add a start script for the socket case
