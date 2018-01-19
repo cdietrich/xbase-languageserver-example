@@ -3,9 +3,13 @@
  */
 package org.xtext.example.mydsl.validation
 
+import org.eclipse.xtext.util.Strings
 import org.eclipse.xtext.validation.Check
-import org.xtext.example.mydsl.myDsl.Greeting
+import org.eclipse.xtext.validation.ValidationMessageAcceptor
+import org.xtext.example.mydsl.myDsl.Entity
+import org.xtext.example.mydsl.myDsl.Feature
 import org.xtext.example.mydsl.myDsl.MyDslPackage
+import org.xtext.example.mydsl.myDsl.PackageDeclaration
 
 /**
  * This class contains custom validation rules. 
@@ -14,15 +18,27 @@ import org.xtext.example.mydsl.myDsl.MyDslPackage
  */
 class MyDslValidator extends AbstractMyDslValidator {
 	
-	public static val INVALID_NAME = 'invalidName'
-
-	@Check
-	def checkGreetingStartsWithCapital(Greeting greeting) {
-		if (!Character.isUpperCase(greeting.name.charAt(0))) {
-			error('Name should start with a capital', 
-					MyDslPackage.Literals.GREETING__NAME,
-					INVALID_NAME)
+	@Check def void checkTypeNameStartsWithCapital(Entity entity) {
+		if (!Character::isUpperCase(entity.getName().charAt(0))) {
+			warning("Name should start with a capital", MyDslPackage.Literals::ABSTRACT_ELEMENT__NAME,
+				ValidationMessageAcceptor::INSIGNIFICANT_INDEX, IssueCodes::INVALID_TYPE_NAME, entity.getName())
 		}
 	}
+
+	@Check def void checkFeatureNameStartsWithLowercase(Feature feature) {
+		if (!Character::isLowerCase(feature.getName().charAt(0))) {
+			warning("Name should start with a lowercase", MyDslPackage.Literals::FEATURE__NAME,
+				ValidationMessageAcceptor::INSIGNIFICANT_INDEX, IssueCodes::INVALID_FEATURE_NAME, feature.getName())
+		}
+	}
+
+	@Check def void checkPackage(PackageDeclaration packages) {
+		if (Strings::isEmpty(packages.getName())) {
+			error("Name cannot be empty", MyDslPackage.Literals::ABSTRACT_ELEMENT__NAME)
+		}
+		if (packages.getName().equals("java")) {
+			error("Invalid package name", MyDslPackage.Literals::ABSTRACT_ELEMENT__NAME)
+		}
+}
 	
 }

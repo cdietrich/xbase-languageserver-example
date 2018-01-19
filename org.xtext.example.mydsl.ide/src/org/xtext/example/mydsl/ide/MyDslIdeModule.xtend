@@ -5,6 +5,8 @@ package org.xtext.example.mydsl.ide
 
 import org.eclipse.xtext.ide.server.commands.IExecutableCommandService
 import org.eclipse.xtext.ide.server.hover.HoverService
+import org.eclipse.xtext.xbase.typesystem.internal.IFeatureScopeTracker
+import org.eclipse.xtext.xbase.typesystem.internal.OptimizingFeatureScopeTrackerProvider
 
 /**
  * Use this class to register ide components.
@@ -17,5 +19,9 @@ class MyDslIdeModule extends AbstractMyDslIdeModule {
 	
 	def Class<? extends IExecutableCommandService> bindIExecutableCommandService() {
 		return CommandService
+	}
+	
+	def Class<? extends IFeatureScopeTracker.Provider> bindIFeatureScopeTracker$Provider() {
+		OptimizingFeatureScopeTrackerProvider
 	}
 }

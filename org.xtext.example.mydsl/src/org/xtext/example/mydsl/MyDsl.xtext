@@ -1,9 +1,30 @@
-grammar org.xtext.example.mydsl.MyDsl with org.eclipse.xtext.common.Terminals
+grammar org.xtext.example.mydsl.MyDsl with org.eclipse.xtext.xbase.Xbase
 
 generate myDsl "http://www.xtext.org/example/mydsl/MyDsl"
 
-Model:
-	greetings+=Greeting*;
+DomainModel:
+	importSection=XImportSection?
+	elements+=AbstractElement*;
 	
-Greeting:
-	'Hello' name=ID ('from' from=[Greeting])? '!';
+AbstractElement:
+	PackageDeclaration | Entity;
+
+PackageDeclaration:
+	'package' name=QualifiedName '{'
+		elements+=AbstractElement*
+	'}';
+
+Entity:
+	'entity' name=ValidID ('extends' superType=JvmParameterizedTypeReference)? '{'
+		features+=Feature*
+	'}';
+
+Feature:
+	Property | Operation;
+
+Property:
+	name=ValidID ':' type=JvmTypeReference;
+
+Operation:
+	'op' name=ValidID '(' (params+=FullJvmFormalParameter (',' params+=FullJvmFormalParameter)*)? ')' (':' type=JvmTypeReference)? 
+body=XBlockExpression;

@@ -3,25 +3,77 @@
  */
 package org.xtext.example.mydsl.formatting2
 
-import org.eclipse.xtext.formatting2.AbstractFormatter2
 import org.eclipse.xtext.formatting2.IFormattableDocument
-import org.xtext.example.mydsl.myDsl.Greeting
-import org.xtext.example.mydsl.myDsl.Model
+import org.eclipse.xtext.xbase.formatting2.XbaseFormatter
+import org.xtext.example.mydsl.myDsl.AbstractElement
+import org.xtext.example.mydsl.myDsl.DomainModel
+import org.xtext.example.mydsl.myDsl.Entity
+import org.xtext.example.mydsl.myDsl.Feature
+import org.xtext.example.mydsl.myDsl.Operation
+import org.xtext.example.mydsl.myDsl.PackageDeclaration
+import org.xtext.example.mydsl.myDsl.Property
 
-class MyDslFormatter extends AbstractFormatter2 {
+import static org.xtext.example.mydsl.myDsl.MyDslPackage.Literals.*
 
-	def dispatch void format(Model model, extension IFormattableDocument document) {
-		for (Greeting greetings : model.getGreetings()) {
-			greetings.format;
+class MyDslFormatter extends XbaseFormatter {
+
+	def dispatch void format(DomainModel domainmodel, extension IFormattableDocument document) {
+		domainmodel.prepend[setNewLines(0, 0, 1); noSpace].append[newLine]
+		format(domainmodel.getImportSection(), document);
+		for (AbstractElement element : domainmodel.getElements()) {
+			format(element, document);
 		}
 	}
 
-	def dispatch void format(Greeting model, extension IFormattableDocument document) {
-		model.prepend[newLines = 2]
-		if (model.from !== null) {
-			model.regionFor.keyword("from").prepend[newLine]
-			interior(model.regionFor.keyword("from").previousSemanticRegion, model.regionFor.keyword("!"))[indent]
+	def dispatch void format(PackageDeclaration pkg, extension IFormattableDocument document) {
+		val open = pkg.regionFor.keyword("{")
+		val close = pkg.regionFor.keyword("}")
+		pkg.regionFor.feature(ABSTRACT_ELEMENT__NAME).surround[oneSpace]
+		open.append[newLine]
+		interior(open, close)[indent]
+		for (AbstractElement element : pkg.elements) {
+			element.format
+			element.append[setNewLines(1, 1, 2)]
 		}
 	}
+
+	def dispatch void format(Entity entity, extension IFormattableDocument document) {
+		val open = entity.regionFor.keyword("{")
+		val close = entity.regionFor.keyword("}")
+		entity.regionFor.feature(ABSTRACT_ELEMENT__NAME).surround[oneSpace]
+		entity.superType.surround[oneSpace]
+		open.append[newLine]
+		interior(open, close)[indent]
+		format(entity.getSuperType(), document);
+		for (Feature feature : entity.features) {
+			feature.format
+			feature.append[setNewLines(1, 1, 2)]
+		}
+	}
+
+	def dispatch void format(Property property, extension IFormattableDocument document) {
+		property.regionFor.keyword(":").surround[noSpace]
+		property.type.format
+	}
+
+	def dispatch void format(Operation operation, extension IFormattableDocument document) {
+		operation.regionFor.keyword("op").append[oneSpace]
+		operation.regionFor.keyword("(").surround[noSpace]
+		if (!operation.params.isEmpty) {
+			for (comma : operation.regionFor.keywords(","))
+				comma.prepend[noSpace].append[oneSpace]
+			for (params : operation.params)
+				params.format
+			operation.regionFor.keyword(")").prepend[noSpace]
+		}
+		if (operation.type !== null) {
+			operation.regionFor.keyword(")").append[noSpace]
+			operation.type.prepend[noSpace].append[oneSpace]
+			operation.type.format
+		} else {
+			operation.regionFor.keyword(")").append[oneSpace]
+		}
+		operation.body.format
+}
 
 }
