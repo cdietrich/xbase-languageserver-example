@@ -44,23 +44,23 @@ public class XbaseProjectManager extends ProjectManager {
 		super.initialize(description, projectConfig, acceptor, openedDocumentsContentProvider, indexProvider, cancelIndicator);
 		List<URL> urls = new ArrayList<>();
 		
-		URI rootPath = projectConfig.getPath();
-		if (rootPath != null) {
-			URI classpathURI = rootPath.appendSegment("classpath.json");
-			
-			try (FileInputStream in = new FileInputStream(classpathURI.toFileString())) {
-				JsonElement parse = new JsonParser().parse(new JsonReader(new InputStreamReader(in, Charsets.UTF_8)));
-				Iterator<JsonElement> iterator = parse.getAsJsonObject().getAsJsonArray("entries").iterator();
-				while (iterator.hasNext()) {
-					JsonElement next = iterator.next();
-					if (!(next instanceof JsonNull)) {
-						urls.add(new URL(next.getAsString()));
-					}
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
+//		URI rootPath = projectConfig.getPath();
+//		if (rootPath != null) {
+//			URI classpathURI = rootPath.appendSegment("classpath.json");
+//			
+//			try (FileInputStream in = new FileInputStream(classpathURI.toFileString())) {
+//				JsonElement parse = new JsonParser().parse(new JsonReader(new InputStreamReader(in, Charsets.UTF_8)));
+//				Iterator<JsonElement> iterator = parse.getAsJsonObject().getAsJsonArray("entries").iterator();
+//				while (iterator.hasNext()) {
+//					JsonElement next = iterator.next();
+//					if (!(next instanceof JsonNull)) {
+//						urls.add(new URL(next.getAsString()));
+//					}
+//				}
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//		}
 		classpathURIContext = new URLClassLoader(urls.toArray(new URL[urls.size()]), null);
 	}
 	
